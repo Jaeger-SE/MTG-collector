@@ -12,8 +12,11 @@ import { ModalBaseComponent } from '../../../../shared/modal/modal-base.componen
 })
 export class SearchComponent extends ModalBaseComponent<undefined, undefined> implements OnInit {
 
+  random: number;
+
   constructor(public testService: TestService) {
     super();
+    this.random = Math.random() * 1000;
   }
 
   ngOnInit() { }

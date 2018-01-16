@@ -50,26 +50,19 @@ interface ModalRegistration extends ModalOptions {
   styleUrls: ['./modal.scss']
 })
 export class ModalHolderComponent implements IModalHolderComponent, OnInit {
-  @ViewChild('container') public container: ElementRef;
+  @ViewChild('container')
+  container: ElementRef;
   @ViewChild('element', {
     read: ViewContainerRef
   })
-  public element: ViewContainerRef;
-
-  get stateName(): string {
-    return this._isVisible ? 'show' : 'hide';
-  }
+  element: ViewContainerRef;
 
   private _modalComponents: IModalComponent<any, any>[];
-  private _isVisible: boolean;
-  private _isInit: boolean;
   private _registeredComponentsStack: ModalRegistration[];
 
   constructor(private resolver: ComponentFactoryResolver, private injector: Injector) {
     this._modalComponents = [];
     this._registeredComponentsStack = [];
-    this._isVisible = false;
-    this._isInit = false;
   }
 
   private getOptionsExtended(options: ModalOptions): ModalRegistration {
@@ -77,10 +70,6 @@ export class ModalHolderComponent implements IModalHolderComponent, OnInit {
   }
 
   ngOnInit(): void {
-    setTimeout(() => {
-      this._isVisible = true;
-      this._isInit = true;
-    }, 30);
   }
 
   addDialog<TIn, TResult>(
@@ -92,43 +81,45 @@ export class ModalHolderComponent implements IModalHolderComponent, OnInit {
     const factory = this.resolver.resolveComponentFactory(
       ModalWrapperComponent
     );
-    const componentRef = factory.create(this.injector); // this.element.createComponent(factory, undefined, this.injector);
+    const componentRef = this.element.createComponent(factory);
     const modalWrapper: ModalWrapperComponent = componentRef.instance;
     const _component: IModalComponent<any, any> = modalWrapper.loadComponent<TIn, TResult>(component);
+
     if (typeof optionExtended.index !== 'undefined') {
-      this._modalComponents.splice(options.index, 0, _component);
+      this._modalComponents.splice(optionExtended.index, 0, _component);
     } else {
       this._modalComponents.push(_component);
     }
     optionExtended.component = _component;
+    this.checkVisibility(_component);
     setTimeout(() => {
       this.container.nativeElement.classList.add('is-active');
       this.container.nativeElement.classList.add('in');
     });
-    if (options.autoCloseTimeout) {
+    if (optionExtended.autoCloseTimeout) {
       setTimeout(() => {
         this.removeDialog(_component);
-      }, options.autoCloseTimeout);
+      }, optionExtended.autoCloseTimeout);
     }
-    if (options.closeByClickingOutside) {
+    if (optionExtended.closeByClickingOutside) {
       this.closeByClickOutside();
     }
-    if (options.closeByEscapeKeyPressed) {
+    if (optionExtended.closeByEscapeKeyPressed) {
       this._registeredComponentsStack.push(optionExtended);
     }
-    if (options.backdropColor) {
+    if (optionExtended.backdropColor) {
       this.container.nativeElement.style.backgroundColor =
-        options.backdropColor;
+        optionExtended.backdropColor;
     }
     _component.closeHandler = this.removeDialog.bind(this);
 
-    if (this._isInit) {
-      this._isVisible = true;
-    }
-    setTimeout(() => {
-      this.activateComponent(_component);
-    }, fadeInDuration);
     return _component.fillData(data);
+  }
+
+  private checkVisibility(activeModal: IModalComponent<any, any>) {
+    _(this._modalComponents).forEach(x => {
+      x.wrapper.isVisible = x === activeModal;
+    });
   }
 
   closeDialog() {
@@ -141,13 +132,6 @@ export class ModalHolderComponent implements IModalHolderComponent, OnInit {
       .filter(x => x !== component)
       .last<IModalComponent<any,
       any>>();
-    this.activateComponent(nextComponent);
-    component.wrapper.isVisible = false;
-    if (shouldHideHolder) {
-      setTimeout(() => {
-        this._isVisible = false;
-      }, 0);
-    }
 
     setTimeout(() => {
       if (shouldHideHolder) {
@@ -159,19 +143,12 @@ export class ModalHolderComponent implements IModalHolderComponent, OnInit {
     }, fadeOutDuration);
   }
 
-  private activateComponent(component: IModalComponent<any, any>): void {
-    for (let i = 0; i < this._modalComponents.length; i++) {
-      const componentBrowsed = this._modalComponents[i];
-      componentBrowsed.wrapper.isCollapsed =
-        component !== undefined && componentBrowsed !== component;
-    }
-  }
-
   private _removeElement(component) {
     const index = this._modalComponents.indexOf(component);
     if (index >= 0) {
       this.element.remove(index);
       this._modalComponents.splice(index, 1);
+      this.checkVisibility(_(this._modalComponents).last());
     }
   }
 

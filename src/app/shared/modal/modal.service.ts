@@ -18,7 +18,6 @@ import {
 import {
   ModalHolderComponent
 } from './modal-holder.component';
-import { inject } from '@angular/core/testing';
 
 export class ModalServiceConfig {
   container: HTMLElement = null;
@@ -84,7 +83,6 @@ export class ModalService {
     const componentFactory = this.resolver.resolveComponentFactory(
       ModalHolderComponent
     );
-
     const componentRef = componentFactory.create(injector);
     const componentRootNode = (componentRef.hostView as EmbeddedViewRef<any>)
       .rootNodes[0] as HTMLElement;

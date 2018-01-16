@@ -40,21 +40,8 @@ interface ModalRegistration extends ModalOptions {
 }
 
 @Component({
-  animations: [
-    trigger('popover', [
-      state('hide', style({
-        opacity: 0
-      })),
-      state('show', style({
-        opacity: 1
-      })),
-
-      transition('show => hide', animate(fadeOutDuration + 'ms ease-out')),
-      transition('hide => show', animate(fadeInDuration + 'ms ease-in'))
-    ])
-  ],
   template: `
-            <div #container class="modal" role="dialog" [@popover]="stateName">
+            <div #container class="modal" role="dialog">
               <div class="modal-background"></div>
               <ng-template #element></ng-template>
               <button class="modal-close is-large" (click)="closeDialog()"></button>

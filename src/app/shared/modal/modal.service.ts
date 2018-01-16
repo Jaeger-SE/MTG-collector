@@ -2,6 +2,7 @@ import {
   ApplicationRef,
   ComponentFactoryResolver,
   EmbeddedViewRef,
+  Injectable,
   Injector,
   Optional,
   Type
@@ -17,11 +18,13 @@ import {
 import {
   ModalHolderComponent
 } from './modal-holder.component';
+import { inject } from '@angular/core/testing';
 
 export class ModalServiceConfig {
   container: HTMLElement = null;
 }
 
+@Injectable()
 export class ModalService {
   /**
    * Placeholder of modal dialogs
@@ -60,7 +63,11 @@ export class ModalService {
     options?: ModalOptions
   ): Observable<TResult> {
     if (!this._modalHolderComponent) {
-      this._modalHolderComponent = this.createDialogHolder();
+      let injector = options.parentInjector;
+      if (!injector) {
+        injector = this.injector;
+      }
+      this._modalHolderComponent = this.createDialogHolder(injector);
     }
     return this._modalHolderComponent.addDialog<TData, TResult>(
       component,
@@ -73,18 +80,16 @@ export class ModalService {
    * Creates and add to DOM dialog holder component
    * @return {DialogHolderComponent}
    */
-  private createDialogHolder(): ModalHolderComponent {
+  private createDialogHolder(injector: Injector): ModalHolderComponent {
     const componentFactory = this.resolver.resolveComponentFactory(
       ModalHolderComponent
     );
 
-    const componentRef = componentFactory.create(this.injector);
+    const componentRef = componentFactory.create(injector);
     const componentRootNode = (componentRef.hostView as EmbeddedViewRef<any>)
       .rootNodes[0] as HTMLElement;
     if (!this._modalContainerHtmlElement) {
-      const componentRootViewContainer = this.applicationRef[
-        '_rootComponents'
-      ][0];
+      const componentRootViewContainer = this.applicationRef.components[0];
       this._modalContainerHtmlElement = (componentRootViewContainer.hostView as EmbeddedViewRef<
         any>
       ).rootNodes[0] as HTMLElement;

@@ -12,6 +12,7 @@ export interface ModalOptions {
   closeByClickingOutside?: boolean;
   closeByEscapeKeyPressed?: boolean;
   backdropColor?: string;
+  parentInjector: Injector;
 }
 
 export interface IModalHolderComponent {

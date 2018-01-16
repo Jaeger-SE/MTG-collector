@@ -8,6 +8,9 @@ import {
 import {
   CommonModule
 } from '@angular/common';
+import {
+  BrowserAnimationsModule
+} from '@angular/platform-browser/animations';
 
 import {
   ModalHolderComponent
@@ -34,13 +37,12 @@ export function dialogServiceFactory(
   injector: Injector,
   options: ModalServiceConfig
 ) {
-  debugger;
   return new ModalService(resolver, applicationRef, injector, options);
 }
 
 @NgModule({
   declarations: [ModalHolderComponent, ModalWrapperComponent],
-  imports: [CommonModule],
+  imports: [BrowserAnimationsModule, CommonModule],
   entryComponents: [ModalHolderComponent, ModalWrapperComponent]
 })
 export class ModalModule {

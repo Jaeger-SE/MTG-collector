@@ -11,7 +11,9 @@ import {
 import {
   AppComponent
 } from './app.component';
-import { ModalModule } from './shared/modal/modal.module';
+import {
+  ModalModule
+} from './shared/modal/modal.module';
 
 
 @NgModule({

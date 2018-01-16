@@ -1,12 +1,17 @@
 import {
   Component,
-  OnInit
+  OnInit,
+  Injector
 } from '@angular/core';
 import {
   TestService
 } from '../../services/test.service';
-import { ModalService } from '../../../../shared/modal/modal.service';
-import { SearchComponent } from '../search/search.component';
+import {
+  ModalService
+} from '../../../../shared/modal/modal.service';
+import {
+  SearchComponent
+} from '../search/search.component';
 
 
 @Component({
@@ -16,11 +21,13 @@ import { SearchComponent } from '../search/search.component';
   providers: [TestService]
 })
 export class IndexComponent implements OnInit {
-  constructor(public testService: TestService, private modalService: ModalService) { }
+  constructor(public testService: TestService, private modalService: ModalService, private injector: Injector) { }
 
   ngOnInit() { }
 
   openModal() {
-    this.modalService.addDialog(SearchComponent);
+    this.modalService.addDialog(SearchComponent, undefined, {
+      parentInjector: this.injector
+    });
   }
 }
